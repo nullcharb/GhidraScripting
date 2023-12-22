@@ -1,0 +1,124 @@
+from ghidra.program.flatapi import FlatProgramAPI
+
+state = getState()
+
+addr = state.getCurrentLocation()
+
+addr = state.getCurrentAddress()
+
+prog = state.getCurrentProgram()
+
+currentProgram.getName()
+
+prog.getExecutableSHA256()
+
+prog.getExecutablePath()
+
+
+function_manager = currentProgram().getFunctionManager()
+
+addr2 = toAddr(int(str(addr),16))
+function = function_manager.getFunctionAt(addr2)
+
+
+
+addr1 = toAddr(0x14000164e)
+print(function_manager.getFunctionContaining(addr1))
+
+
+
+
+
+
+
+
+
+# Get a list of all functions, their Name and Address.
+
+func = getFirstFunction()
+while func is not None:
+    print(f"Function Name: {func.getName()}, Address : {func.getEntryPoint()}")
+    func = getFunctionAfter(func)
+
+
+
+# GetComment at a certain address:
+
+addr = 0x14000107b
+function_address = getAddressFactory().getDefaultAddressSpace().getAddress(addr)
+ins1 = currentProgram().getListing().getInstructionAt(function_address)
+comment_types = {0: 'EOL',1: 'PRE',2: 'POST',3: 'PLATE',4: 'REPEATABLE',}
+
+for i in range(0,5):
+    print(ins1.getComment(i))
+
+
+
+# Get Comment at Entry Point of a function.
+
+func = getFirstFunction()
+while func is not None:
+    print(f"Function Name: {func.getName()}, Address : {func.getEntryPoint()}")
+    ins1 = currentProgram().getListing().getInstructionAt(func.getEntryPoint())
+    comment_types = {0: 'EOL',1: 'PRE',2: 'POST',3: 'PLATE',4: 'REPEATABLE',}
+    for i in range(0,5):
+        if ins1.getComment(i) is not None:
+            print(ins1.getComment(i))
+    func = getFunctionAfter(func)
+
+
+
+// Get Comments for all the functions.
+
+fm = currentProgram().getFunctionManager()
+listing = currentProgram().getListing()
+funcs = fm.getFunctions(True) # True means iterate forward
+
+comment_types = {0: 'EOL',1: 'PRE',2: 'POST',3: 'PLATE',4: 'REPEATABLE',}
+
+for func in funcs: 
+    addrSet = func.getBody()
+    codeUnits = listing.getCodeUnits(addrSet, True)
+    for codeUnit in codeUnits:
+        for i, comment_type in comment_types.items():
+            comment = codeUnit.getComment(i)
+            if comment is not None:
+                print("[{} : {}] {}: {}".format(func.getName(), codeUnit.getAddress(), comment_type, comment))
+
+
+
+// Get references to a function.
+
+fm = currentProgram().getFunctionManager()
+funcs = fm.getFunctions(True)
+for func in funcs:
+  if func.getName() == "getFunctionAddressByHash":
+    print("\nFound 'getFunctionAddressByHash' @ 0x{}".format(func.getEntryPoint()))
+    entry_point = func.getEntryPoint()
+    references = getReferencesTo(entry_point)
+    for xref in references:
+      print(xref)
+
+
+
+// Dump shellcode
+
+# Ghidra script to dump shellcode from a PE file to a binary file
+
+import os
+startAddress = toAddr(0x14000a000)  
+shellcodeLength = 0x11B
+output_array = ""
+outputFilePath = "C:\\Users\\Developer\\Desktop\\GhidraScripting\\shellcode.bin"  
+with open(outputFilePath, "wb") as outputFile:
+    currentAddress = startAddress
+    for _ in range(shellcodeLength):
+        currentByte = getByte(currentAddress)
+        output_array = output_array + (chr(currentByte & 0xff))
+        print(f"Current Byte : {chr(currentByte & 0xff).encode()}, type : {type(chr(currentByte & 0xff))}")
+        currentAddress = currentAddress.next()
+    print(bytes(output_array, encoding="raw_unicode_escape"))
+    outputFile.write(bytes(output_array, encoding="raw_unicode_escape"))
+
+
+
